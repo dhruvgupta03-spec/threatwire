@@ -6,10 +6,11 @@ to genuine LLM-written prose when USE_LLM_BRIEFS=1 + ANTHROPIC_API_KEY are set.
 """
 from __future__ import annotations
 
+import os
 import time
 
 from .config import PRODUCTS
-from .enrich import _rewrite, enabled
+from .enrich import _rewrite, has_key
 
 # A strong stance per dominant theme — this is where the "PoV" gets its spine.
 STANCE = {
@@ -46,7 +47,7 @@ def pov(items: list[dict], now: float) -> dict:
     date_str = time.strftime("%B %-d", time.gmtime(now))
 
     # LLM path — genuine editorial prose.
-    if enabled():
+    if has_key():
         heads = "\n".join(f"- {i['title']} ({i['source']})" for i in items[:10])
         prompt = (
             "Write a sharp, unbylined 150-word editorial 'Point of View' for a "
@@ -54,7 +55,7 @@ def pov(items: list[dict], now: float) -> dict:
             "clear, defensible stance and end with a concrete recommendation. No byline, "
             "no headline, no preamble — just 2 short paragraphs.\n\n" + heads
         )
-        body = _rewrite("PoV of the Day", prompt, "ThreatWire", __import__("os").environ["ANTHROPIC_API_KEY"])
+        body = _rewrite("PoV of the Day", prompt, "ThreatWire", os.environ["ANTHROPIC_API_KEY"])
         if body:
             paras = [p.strip() for p in body.split("\n") if p.strip()]
             return {"title": f"The Point of View — {date_str}", "dek": f"On {top_topic.lower()} and the tempo of the day.",
@@ -78,7 +79,7 @@ def feature(now: float) -> dict:
     product = dict(PRODUCTS[day_index % len(PRODUCTS)])
     product["date_str"] = time.strftime("%B %-d, %Y", time.gmtime(now))
 
-    if enabled():
+    if has_key():
         prompt = (
             f"Write a neutral ~220-word product profile for a cybersecurity newspaper's "
             f"'Product of the Day'. Product: {product['name']} by {product['vendor']} "
@@ -86,7 +87,7 @@ def feature(now: float) -> dict:
             f"No hype, no headline, no byline — just 2-3 short paragraphs.\n\n"
             f"Context: {product['one_liner']} {product['why']}"
         )
-        body = _rewrite(product["name"], prompt, product["vendor"], __import__("os").environ["ANTHROPIC_API_KEY"])
+        body = _rewrite(product["name"], prompt, product["vendor"], os.environ["ANTHROPIC_API_KEY"])
         if body:
             product["deep_dive"] = [p.strip() for p in body.split("\n") if p.strip()]
             product["generated"] = "llm"
