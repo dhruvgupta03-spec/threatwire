@@ -1,0 +1,55 @@
+name: Build & Deploy ThreatWire
+
+# ── LOOP TRIGGER ─────────────────────────────────────────────
+on:
+  schedule:
+    - cron: "*/15 * * * *"   # every 15 minutes — keeps the front page "latest"
+  workflow_dispatch:          # manual run button
+  push:
+    branches: [main]          # rebuild on code changes
+
+# GitHub Pages deploy permissions
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one deploy at a time; newer runs supersede in-flight ones.
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # AGENT ACTION + VERIFY: build.py exits non-zero if the fetch is empty,
+      # which fails this step and prevents publishing a blank edition.
+      - name: Build front page
+        run: python -m src.build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
