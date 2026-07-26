@@ -4,16 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="{{ item.summary[:150] }}">
+  <link rel="alternate" type="application/rss+xml" title="ThreatWire RSS" href="{{ base }}feed.xml">
   <title>{{ item.title }} — {{ site.name }}</title>
-  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="{{ base }}style.css">
 </head>
 <body>
 <div class="paper story-page">
 
   <header class="brief-masthead">
-    <a href="../index.html" class="brief-nameplate">{{ site.name }}</a>
+    <a href="{{ base }}index.html" class="brief-nameplate">{{ site.name }}</a>
     <span class="brief-tagline">{{ site.tagline }}</span>
   </header>
+  {% include "_nav.html.j2" %}
   <div class="rule-single"></div>
 
   <article class="brief">
@@ -40,6 +42,17 @@
       Read the full report at {{ item.source }} →
     </a>
 
+    {% if item.also_sources %}
+    <div class="also">
+      <span class="also-label">Also covered by</span>
+      <ul>
+        {% for a in item.also_sources %}
+        <li><a href="{{ a.link }}" target="_blank" rel="noopener">{{ a.source }} →</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
     <p class="brief-note">
       This is an aggregated brief. The summary above is syndicated from
       {{ item.source }}; full reporting and copyright remain with the original publisher.
@@ -52,14 +65,14 @@
     <h4 class="section-head">More on the Wire</h4>
     <ul class="rail-list">
       {% for r in related %}
-      <li><a href="{{ r.id }}.html">{{ r.title }}</a><span class="rail-meta">{{ r.source }} · {{ r.ago }}</span></li>
+      <li><a href="{{ base }}{{ r.href }}">{{ r.title }}</a><span class="rail-meta">{{ r.source }} · {{ r.ago }}</span></li>
       {% endfor %}
     </ul>
   </section>
   {% endif %}
 
   <footer class="colophon">
-    <p><a href="../index.html">← Back to the front page</a></p>
+    <p><a href="{{ base }}index.html">← Back to the front page</a></p>
     <p class="built">Brief built {{ built_at }}</p>
   </footer>
 
