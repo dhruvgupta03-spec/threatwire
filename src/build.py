@@ -17,6 +17,7 @@ import sys
 import time
 from pathlib import Path
 
+from .enrich import enrich
 from .fetch import fetch_all
 from .process import process
 from .render import render
@@ -28,6 +29,7 @@ MIN_ITEMS = 5  # verification gate: below this, something is wrong upstream.
 def build() -> int:
     started = time.time()
     items = process(fetch_all())
+    items = enrich(items)  # no-op unless USE_LLM_BRIEFS=1 + ANTHROPIC_API_KEY set
 
     # --- Verification gate ---------------------------------------------------
     if len(items) < MIN_ITEMS:
