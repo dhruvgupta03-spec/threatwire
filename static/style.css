@@ -304,6 +304,59 @@ a:hover { text-decoration: underline; text-underline-offset: 2px; }
 }
 .also li a:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
 
+/* ── Editorial: PoV + Product boxes (rail) ── */
+.pov-box, .product-box { background: var(--card); border: 1px solid var(--line); padding: 14px; }
+.pov-box .rail-title, .product-box .rail-title { border-bottom-color: var(--accent); }
+.pov-title {
+  display: block; font-family: var(--serif); font-weight: 800; font-size: 17px;
+  line-height: 1.2; margin-bottom: 6px;
+}
+.pov-title:hover { color: var(--accent); text-decoration: none; }
+.product-cat {
+  font-family: var(--sans); font-size: 10px; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--faint); margin: 0 0 6px;
+}
+.pov-excerpt { font-size: 13px; color: var(--ink-soft); margin: 0 0 8px; }
+.pov-more { font-family: var(--sans); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+.nav-pov { font-weight: 800; }
+.nav-ai { color: #1f5c7a; }
+
+/* ── PoV + Feature full pages ─────────────── */
+.pov-full, .feature { max-width: 680px; }
+.pov-dek { font-family: var(--serif); font-style: italic; font-size: 19px; color: var(--faint); margin: 0 0 22px; }
+.pov-para { font-size: 18px; line-height: 1.65; margin: 0 0 20px; }
+.pov-para:first-letter, .feature .pov-para:first-letter { font-weight: inherit; }
+.pov-full .pov-para:first-of-type::first-letter {
+  font-size: 3em; float: left; line-height: .8; padding: 6px 8px 0 0; font-weight: 700;
+}
+.feature-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 18px; }
+.feature-site { font-family: var(--sans); font-size: 12px; font-weight: 700; color: var(--accent); }
+.feature-lead { font-size: 21px; line-height: 1.4; font-weight: 600; margin: 0 0 22px; }
+.feature-h {
+  font-family: var(--sans); font-size: 12px; text-transform: uppercase; letter-spacing: .12em;
+  border-bottom: 1px solid var(--line); padding-bottom: 5px; margin: 24px 0 12px;
+}
+.feature-caps { margin: 0; padding-left: 20px; }
+.feature-caps li { font-size: 16px; line-height: 1.5; margin-bottom: 6px; }
+
+/* ── Wire filter tabs ─────────────────────── */
+.wire-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.wire-head .section-head { border-bottom: none; margin: 0; }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.filter {
+  font-family: var(--sans); font-size: 11px; font-weight: 600; letter-spacing: .05em;
+  text-transform: uppercase; cursor: pointer;
+  background: var(--paper); color: var(--ink-soft);
+  border: 1px solid var(--line); padding: 5px 11px;
+}
+.filter:hover { border-color: var(--ink); }
+.filter.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.filter-count {
+  font-family: var(--sans); font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--faint); margin: 4px 0 14px; min-height: 14px;
+}
+.wire { border-top: 2px solid var(--line-strong); padding-top: 16px; }
+
 /* ── Responsive ───────────────────────────── */
 @media (max-width: 900px) {
   .paper { padding: 20px; }
