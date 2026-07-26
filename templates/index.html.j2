@@ -56,6 +56,25 @@
     </main>
 
     <aside class="rail">
+      {% if pov %}
+      <section class="rail-box pov-box">
+        <h4 class="rail-title">PoV of the Day</h4>
+        <a href="{{ base }}pov.html" class="pov-title">{{ pov.title }}</a>
+        <p class="pov-excerpt">{{ pov.paragraphs[0] }}</p>
+        <a href="{{ base }}pov.html" class="pov-more">Read the full view →</a>
+      </section>
+      {% endif %}
+
+      {% if product %}
+      <section class="rail-box product-box">
+        <h4 class="rail-title">Product of the Day</h4>
+        <a href="{{ base }}feature.html" class="pov-title">{{ product.name }}</a>
+        <p class="product-cat">{{ product.vendor }} · {{ product.category }}</p>
+        <p class="pov-excerpt">{{ product.one_liner }}</p>
+        <a href="{{ base }}feature.html" class="pov-more">Read the profile →</a>
+      </section>
+      {% endif %}
+
       <section class="rail-box threat-level">
         <h4 class="rail-title">Threat Level</h4>
         <div class="level-row"><span class="tag sev-3">Critical</span><span class="bar"><i style="width:{{ (sev_counts[3]/total*100) if total else 0 }}%"></i></span><b>{{ sev_counts[3] }}</b></div>
@@ -88,10 +107,21 @@
   <div class="rule-single"></div>
 
   <section class="wire">
-    <h4 class="section-head">The Wire — Latest</h4>
-    <div class="wire-grid">
+    <div class="wire-head">
+      <h4 class="section-head">The Wire — Latest</h4>
+      <div class="filters" id="filters">
+        <button class="filter active" data-filter="all">All</button>
+        <button class="filter" data-filter="sev:3">Critical</button>
+        <button class="filter" data-filter="sev:2">High</button>
+        {% for t in nav %}
+        <button class="filter" data-filter="topic:{{ t.label|lower }}">{{ t.label }}</button>
+        {% endfor %}
+      </div>
+    </div>
+    <p class="filter-count" id="filter-count"></p>
+    <div class="wire-grid" id="wire-grid">
       {% for it in features %}
-      <article class="wire-item">
+      <article class="wire-item" data-sev="{{ it.severity }}" data-topics="{{ it.topics|join(',')|lower }}">
         <span class="sev-dot sev-{{ it.severity }}" title="{{ it.sev_label }}"></span>
         <div>
           <h5><a href="{{ base }}{{ it.href }}">{{ it.title }}</a></h5>
@@ -141,6 +171,29 @@
     } catch (e) { /* offline or transient — try again next tick */ }
   }
   setInterval(poll, 60000);
+
+  // Dynamic wire filtering — client-side, no reload.
+  var items = Array.prototype.slice.call(document.querySelectorAll('#wire-grid .wire-item'));
+  var buttons = Array.prototype.slice.call(document.querySelectorAll('#filters .filter'));
+  var countEl = document.getElementById('filter-count');
+  function applyFilter(f) {
+    var shown = 0;
+    items.forEach(function (el) {
+      var ok = f === 'all';
+      if (!ok && f.indexOf('sev:') === 0) ok = el.getAttribute('data-sev') === f.slice(4);
+      if (!ok && f.indexOf('topic:') === 0) ok = (',' + el.getAttribute('data-topics') + ',').indexOf(',' + f.slice(6) + ',') !== -1;
+      el.style.display = ok ? '' : 'none';
+      if (ok) shown++;
+    });
+    countEl.textContent = f === 'all' ? '' : (shown + ' matching ' + (shown === 1 ? 'story' : 'stories'));
+  }
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      buttons.forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      applyFilter(btn.getAttribute('data-filter'));
+    });
+  });
 })();
 </script>
 </body>
