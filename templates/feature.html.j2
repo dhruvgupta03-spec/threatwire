@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{ p.name }} — {{ p.one_liner }}">
+  <title>Product of the Day: {{ p.name }} — {{ site.name }}</title>
+  <link rel="stylesheet" href="{{ base }}style.css">
+</head>
+<body>
+<div class="paper story-page">
+
+  <header class="brief-masthead">
+    <a href="{{ base }}index.html" class="brief-nameplate">{{ site.name }}</a>
+    <span class="brief-tagline">{{ site.tagline }}</span>
+  </header>
+  {% include "_nav.html.j2" %}
+  <div class="rule-single"></div>
+
+  <article class="feature">
+    <span class="kicker">Product of the Day · {{ p.date_str }}</span>
+    <h1 class="brief-hl">{{ p.name }}</h1>
+    <p class="feature-meta">
+      <span class="topic-chip">{{ p.vendor }}</span>
+      <span class="topic-chip">{{ p.category }}</span>
+      <a class="feature-site" href="{{ p.url }}" target="_blank" rel="noopener">Visit site →</a>
+    </p>
+
+    <p class="feature-lead">{{ p.one_liner }}</p>
+
+    {% if p.deep_dive %}
+      {% for para in p.deep_dive %}<p class="pov-para">{{ para }}</p>{% endfor %}
+    {% else %}
+      <h4 class="feature-h">Why it matters</h4>
+      <p class="pov-para">{{ p.why }}</p>
+      <h4 class="feature-h">Key capabilities</h4>
+      <ul class="feature-caps">
+        {% for c in p.capabilities %}<li>{{ c }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+
+    <p class="brief-note">
+      An independent, unpaid profile chosen by rotation — not an endorsement or advertisement.
+      A new product is featured each day and this page is replaced with the next edition.
+    </p>
+  </article>
+
+  <footer class="colophon">
+    <p><a href="{{ base }}index.html">← Back to the front page</a></p>
+    <p class="built">Featured {{ built_at }}</p>
+  </footer>
+</div>
+</body>
+</html>
