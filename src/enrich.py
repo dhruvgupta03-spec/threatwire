@@ -28,8 +28,16 @@ API_URL = "https://api.anthropic.com/v1/messages"
 MAX_REWRITES = 30  # cap per build → bounded cost
 
 
+def has_key() -> bool:
+    """True when an Anthropic key is available — enables the cheap editorial
+    pieces (PoV + Product of the Day, ~2 calls per build)."""
+    return bool(os.environ.get("ANTHROPIC_API_KEY"))
+
+
 def enabled() -> bool:
-    return os.environ.get("USE_LLM_BRIEFS") == "1" and bool(os.environ.get("ANTHROPIC_API_KEY"))
+    """True only when the key is present AND per-story brief rewriting is opted in
+    (ENRICH_BRIEFS=1) — this is the expensive path (many calls per build)."""
+    return has_key() and os.environ.get("ENRICH_BRIEFS") == "1"
 
 
 def _rewrite(title: str, summary: str, source: str, key: str) -> str | None:
