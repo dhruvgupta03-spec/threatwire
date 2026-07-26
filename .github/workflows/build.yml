@@ -35,7 +35,13 @@ jobs:
 
       # AGENT ACTION + VERIFY: build.py exits non-zero if the fetch is empty,
       # which fails this step and prevents publishing a blank edition.
+      # AI editorial (PoV + Product) turns on automatically when the
+      # ANTHROPIC_API_KEY secret is set. Per-story brief rewriting also needs
+      # the ENRICH_BRIEFS repo variable set to "1" (heavier / more calls).
       - name: Build front page
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ENRICH_BRIEFS: ${{ vars.ENRICH_BRIEFS }}
         run: python -m src.build
 
       - name: Upload Pages artifact
