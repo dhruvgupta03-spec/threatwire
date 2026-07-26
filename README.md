@@ -41,10 +41,36 @@ open site/index.html
 ./.venv/bin/python -m src.loop 5
 ```
 
+## Features
+
+- **15 threat-intel wires** aggregated, deduplicated, and ranked by severity + recency
+- **Story clustering** — the same incident reported by multiple outlets folds into
+  one lead story with an "also covered by" list
+- **On-site briefs** — every story gets a ThreatWire page that links out to the source
+- **Section pages** — one per topic (Ransomware, Zero-Day, …) plus a Critical desk
+- **Client-side search** — `search.html` over `search-index.json`, no backend
+- **Own feeds** — `feed.xml` (RSS 2.0) and `feed.json` (JSON Feed) so others can subscribe
+- **Live auto-update** — the page polls `status.json` and reloads itself when a new
+  edition publishes; a "LIVE" badge shows how fresh the edition is
+
 ## Configure sources
 
 Edit `src/config.py` — add/remove feeds in `FEEDS`, tune `SEVERITY` / `TOPICS`
 keywords, or adjust `MAX_ITEMS` / `MAX_AGE_DAYS`.
+
+## Optional: LLM-rewritten briefs
+
+Off by default. To make each brief original ThreatWire prose instead of the
+publisher's syndicated summary, set two GitHub Actions secrets:
+`USE_LLM_BRIEFS=1` and `ANTHROPIC_API_KEY=...`. Uses Claude Haiku, capped per
+build to keep cost negligible. See `src/enrich.py`.
+
+## Optional: custom domain
+
+Buy a domain, set `SITE["domain"] = "yourdomain.com"` in `src/config.py` (emits a
+`CNAME` file on build), then point DNS at GitHub Pages:
+`A` records → `185.199.108.153`, `.109.153`, `.110.153`, `.111.153`, and a
+`CNAME` for `www` → `<username>.github.io`.
 
 ## Deploy (public site + custom domain)
 
