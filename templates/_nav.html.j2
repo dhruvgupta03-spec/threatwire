@@ -1,9 +1,13 @@
 <nav class="topnav">
   <a href="{{ base }}index.html" class="nav-home">Front Page</a>
+  <a href="{{ base }}pov.html" class="nav-pov">PoV of the Day</a>
+  <a href="{{ base }}feature.html">Product of the Day</a>
+  <a href="{{ base }}vendor.html">Vendor Labs</a>
+  <a href="{{ base }}ai.html" class="nav-ai">AI Security</a>
+  <a href="{{ base }}severity-critical.html" class="nav-critical">Critical</a>
   {% for t in nav %}
   <a href="{{ base }}topic-{{ t.slug }}.html">{{ t.label }}</a>
   {% endfor %}
-  <a href="{{ base }}severity-critical.html" class="nav-critical">Critical</a>
   <a href="{{ base }}search.html" class="nav-search">Search</a>
   <a href="{{ base }}feed.xml" class="nav-feed" title="Subscribe to the ThreatWire RSS feed">RSS</a>
 </nav>
