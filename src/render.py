@@ -25,6 +25,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from . import editorial
 from .config import SITE, TOPICS
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -81,10 +82,10 @@ def _nav(items: list[dict]) -> list[dict]:
             counts[t] = counts.get(t, 0) + 1
     ranked = sorted((t for t in TOPICS if counts.get(t, 0) >= 3),
                     key=lambda t: counts[t], reverse=True)
-    return [{"label": t, "slug": slug(t), "count": counts[t]} for t in ranked[:7]]
+    return [{"label": t, "slug": slug(t), "count": counts[t]} for t in ranked[:4]]
 
 
-def build_context(items: list[dict], now: float, nav: list[dict]) -> dict:
+def build_context(items: list[dict], now: float, nav: list[dict], pov: dict, product: dict) -> dict:
     lead = items[0] if items else None
     secondary = items[1:5]
     feature_pool = items[5:]
@@ -109,6 +110,7 @@ def build_context(items: list[dict], now: float, nav: list[dict]) -> dict:
         "lead": lead, "secondary": secondary, "features": feature_pool,
         "critical": critical, "sev_counts": sev_counts, "top_sources": top_sources,
         "posture": posture, "posture_class": posture_class, "total": len(items),
+        "pov": pov, "product": product,
         "built_at": time.strftime("%A, %B %-d, %Y · %H:%M UTC", time.gmtime(now)),
         "built_epoch": int(now),
         "edition": time.strftime("Vol. 1 · No. %j", time.gmtime(now)),
@@ -179,14 +181,37 @@ def render(items: list[dict]) -> Path:
     story_tpl = env.get_template("story.html.j2")
     section_tpl = env.get_template("section.html.j2")
     search_tpl = env.get_template("search.html.j2")
+    pov_tpl = env.get_template("pov.html.j2")
+    feature_tpl = env.get_template("feature.html.j2")
 
     SITE_DIR.mkdir(parents=True, exist_ok=True)
     STORY_DIR.mkdir(parents=True, exist_ok=True)
     built_at = time.strftime("%A, %B %-d, %Y · %H:%M UTC", time.gmtime(now))
 
+    # Auto-built editorial (rule-based by default; LLM if enabled)
+    pov = editorial.pov(items, now)
+    product = editorial.feature(now)
+
     # Front page
     (SITE_DIR / "index.html").write_text(
-        index_tpl.render(**build_context(items, now, nav)), encoding="utf-8")
+        index_tpl.render(**build_context(items, now, nav, pov, product)), encoding="utf-8")
+
+    # PoV of the Day + Product of the Day (overwritten each build → "removed the next day")
+    (SITE_DIR / "pov.html").write_text(
+        pov_tpl.render(site=SITE, base="", nav=nav, built_at=built_at, pov=pov), encoding="utf-8")
+    (SITE_DIR / "feature.html").write_text(
+        feature_tpl.render(site=SITE, base="", nav=nav, built_at=built_at, p=product), encoding="utf-8")
+
+    # Vendor-lab + AI-security group section pages
+    for gkey, gname, gsub in [
+        ("vendor", "Vendor Labs", "Threat research from the top security vendors"),
+        ("ai", "AI Security", "Intel on AI/LLM threats from niche specialists"),
+    ]:
+        rows = [i for i in items if i.get("group") == gkey]
+        (SITE_DIR / f"{gkey}.html").write_text(
+            section_tpl.render(site=SITE, base="", nav=nav, built_at=built_at,
+                               heading=gname, subtitle=f"{len(rows)} stories · {gsub}", rows=rows),
+            encoding="utf-8")
 
     # Per-story briefs (base="../" because they live under story/)
     for item in items:
