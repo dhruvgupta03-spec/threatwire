@@ -4,20 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="{{ site.motto }}">
-  <!-- Loop-engineering stop/refresh: the page re-pulls the freshly built edition every 15 min. -->
+  <link rel="alternate" type="application/rss+xml" title="ThreatWire RSS" href="{{ base }}feed.xml">
+  <!-- Fallback auto-refresh; the live poller below reloads sooner when a new edition ships. -->
   <meta http-equiv="refresh" content="900">
   <title>{{ site.name }} — {{ site.tagline }}</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="{{ base }}style.css">
 </head>
 <body>
+<div id="newedition" class="new-edition">New edition just published — refreshing…</div>
 <div class="paper">
 
-  <!-- ── Masthead ─────────────────────────────────────────── -->
   <header class="masthead">
     <div class="dateline">
       <span>{{ edition }}</span>
       <span class="dot">•</span>
       <span>{{ built_at }}</span>
+      <span class="dot">•</span>
+      <span class="live"><span class="live-dot"></span>LIVE · updated <span id="live-ago">just now</span></span>
     </div>
     <h1 class="nameplate">{{ site.name }}</h1>
     <p class="tagline">{{ site.tagline }}</p>
@@ -27,17 +30,16 @@
     </div>
   </header>
 
+  {% include "_nav.html.j2" %}
   <div class="rule-double"></div>
 
   {% if lead %}
-  <!-- ── Front page ───────────────────────────────────────── -->
   <div class="frontpage">
-
     <main class="lead-col">
       <article class="lead">
         <span class="kicker {{ 'sev-'~lead.severity }}">{{ lead.kicker }}{% if lead.severity >= 2 %} · {{ lead.sev_label }}{% endif %}</span>
-        <h2 class="lead-hl"><a href="{{ lead.href }}">{{ lead.title }}</a></h2>
-        <p class="byline">{{ lead.source }}<span class="dot">•</span>{{ lead.ago }}</p>
+        <h2 class="lead-hl"><a href="{{ base }}{{ lead.href }}">{{ lead.title }}</a></h2>
+        <p class="byline">{{ lead.source }}<span class="dot">•</span>{{ lead.ago }}{% if lead.coverage_label %}<span class="cov">{{ lead.coverage_label }}</span>{% endif %}</p>
         {% if lead.summary %}<p class="lead-body">{{ lead.summary }}</p>{% endif %}
       </article>
 
@@ -45,15 +47,14 @@
         {% for s in secondary %}
         <article class="story">
           <span class="kicker {{ 'sev-'~s.severity }}">{{ s.kicker }}</span>
-          <h3><a href="{{ s.href }}">{{ s.title }}</a></h3>
-          <p class="byline">{{ s.source }}<span class="dot">•</span>{{ s.ago }}</p>
+          <h3><a href="{{ base }}{{ s.href }}">{{ s.title }}</a></h3>
+          <p class="byline">{{ s.source }}<span class="dot">•</span>{{ s.ago }}{% if s.coverage_label %}<span class="cov">{{ s.coverage_label }}</span>{% endif %}</p>
           {% if s.summary %}<p class="story-body">{{ s.summary }}</p>{% endif %}
         </article>
         {% endfor %}
       </div>
     </main>
 
-    <!-- ── Right rail: the "markets" of cyber ──────────────── -->
     <aside class="rail">
       <section class="rail-box threat-level">
         <h4 class="rail-title">Threat Level</h4>
@@ -67,7 +68,7 @@
         <h4 class="rail-title">Critical Now</h4>
         <ul class="rail-list">
           {% for c in critical %}
-          <li><a href="{{ c.href }}">{{ c.title }}</a><span class="rail-meta">{{ c.source }} · {{ c.ago }}</span></li>
+          <li><a href="{{ base }}{{ c.href }}">{{ c.title }}</a><span class="rail-meta">{{ c.source }} · {{ c.ago }}</span></li>
           {% endfor %}
         </ul>
       </section>
@@ -86,7 +87,6 @@
 
   <div class="rule-single"></div>
 
-  <!-- ── The wire: dense latest feed ──────────────────────── -->
   <section class="wire">
     <h4 class="section-head">The Wire — Latest</h4>
     <div class="wire-grid">
@@ -94,8 +94,8 @@
       <article class="wire-item">
         <span class="sev-dot sev-{{ it.severity }}" title="{{ it.sev_label }}"></span>
         <div>
-          <h5><a href="{{ it.href }}">{{ it.title }}</a></h5>
-          <p class="wire-meta">{{ it.source }}<span class="dot">•</span>{{ it.ago }}{% if it.topics %}<span class="dot">•</span>{{ it.topics|join(', ') }}{% endif %}</p>
+          <h5><a href="{{ base }}{{ it.href }}">{{ it.title }}</a></h5>
+          <p class="wire-meta">{{ it.source }}<span class="dot">•</span>{{ it.ago }}{% if it.coverage_label %}<span class="dot">•</span>{{ it.coverage_label }}{% endif %}</p>
         </div>
       </article>
       {% endfor %}
@@ -105,13 +105,43 @@
   <p class="empty">No stories on the wire yet — the fetch loop hasn't produced results.</p>
   {% endif %}
 
-  <!-- ── Footer / colophon ────────────────────────────────── -->
   <footer class="colophon">
     <p class="motto">{{ site.motto }}</p>
-    <p class="sources">Sourced from {{ top_sources|length }}+ threat-intelligence wires. Headlines link to original reporting; copyright remains with each publisher.</p>
-    <p class="built">Edition built {{ built_at }} · auto-refreshes every 15 minutes on the loop.</p>
+    <p class="sources">Sourced from {{ top_sources|length }}+ threat-intelligence wires. Headlines open a ThreatWire brief that links to the original reporting; copyright remains with each publisher.</p>
+    <p class="built">Edition built {{ built_at }} · this page auto-updates when a new edition publishes.</p>
   </footer>
 
 </div>
+
+<script>
+(function () {
+  var BUILT = {{ built_epoch }};
+  var statusUrl = "{{ base }}status.json";
+
+  function tick() {
+    var el = document.getElementById('live-ago');
+    if (!el) return;
+    var s = Math.max(0, Math.floor(Date.now() / 1000) - BUILT);
+    var m = Math.floor(s / 60);
+    el.textContent = m < 1 ? 'just now' : (m < 60 ? m + 'm ago' : Math.floor(m / 60) + 'h ago');
+  }
+  tick();
+  setInterval(tick, 15000);
+
+  async function poll() {
+    try {
+      var r = await fetch(statusUrl + '?t=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) return;
+      var d = await r.json();
+      if (d.built_epoch && d.built_epoch > BUILT) {
+        var b = document.getElementById('newedition');
+        if (b) b.classList.add('show');
+        setTimeout(function () { location.reload(); }, 2500);
+      }
+    } catch (e) { /* offline or transient — try again next tick */ }
+  }
+  setInterval(poll, 60000);
+})();
+</script>
 </body>
 </html>
