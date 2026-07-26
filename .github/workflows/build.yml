@@ -3,7 +3,7 @@ name: Build & Deploy ThreatWire
 # ── LOOP TRIGGER ─────────────────────────────────────────────
 on:
   schedule:
-    - cron: "*/15 * * * *"   # every 15 minutes — keeps the front page "latest"
+    - cron: "0 * * * *"      # top of every hour — keeps the front page "latest"
   workflow_dispatch:          # manual run button
   push:
     branches: [main]          # rebuild on code changes
