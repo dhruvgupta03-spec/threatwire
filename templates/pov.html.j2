@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{ pov.dek }}">
+  <title>{{ pov.title }} — {{ site.name }}</title>
+  <link rel="stylesheet" href="{{ base }}style.css">
+</head>
+<body>
+<div class="paper story-page">
+
+  <header class="brief-masthead">
+    <a href="{{ base }}index.html" class="brief-nameplate">{{ site.name }}</a>
+    <span class="brief-tagline">{{ site.tagline }}</span>
+  </header>
+  {% include "_nav.html.j2" %}
+  <div class="rule-single"></div>
+
+  <article class="pov-full">
+    <span class="kicker">Editorial · The Point of View</span>
+    <h1 class="brief-hl">{{ pov.title }}</h1>
+    <p class="pov-dek">{{ pov.dek }}</p>
+    {% for para in pov.paragraphs %}
+    <p class="pov-para">{{ para }}</p>
+    {% endfor %}
+    <p class="brief-note">
+      Written by the ThreatWire desk — no byline. This view is auto-composed from the day's wire
+      {% if pov.generated == 'llm' %}by an AI editorial model{% else %}from the day's dominant threat signals{% endif %}
+      and is replaced with each new edition.
+    </p>
+  </article>
+
+  <footer class="colophon">
+    <p><a href="{{ base }}index.html">← Back to the front page</a></p>
+    <p class="built">Composed {{ built_at }}</p>
+  </footer>
+</div>
+</body>
+</html>
