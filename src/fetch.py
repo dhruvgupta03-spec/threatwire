@@ -88,6 +88,7 @@ def fetch_feed(source: dict) -> list[dict]:
                 "summary": summary,
                 "source": source["name"],
                 "category": source["category"],
+                "group": source.get("group", "news"),
                 "published_ts": ts,
             }
         )
