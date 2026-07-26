@@ -1,0 +1,9 @@
+<nav class="topnav">
+  <a href="{{ base }}index.html" class="nav-home">Front Page</a>
+  {% for t in nav %}
+  <a href="{{ base }}topic-{{ t.slug }}.html">{{ t.label }}</a>
+  {% endfor %}
+  <a href="{{ base }}severity-critical.html" class="nav-critical">Critical</a>
+  <a href="{{ base }}search.html" class="nav-search">Search</a>
+  <a href="{{ base }}feed.xml" class="nav-feed" title="Subscribe to the ThreatWire RSS feed">RSS</a>
+</nav>
