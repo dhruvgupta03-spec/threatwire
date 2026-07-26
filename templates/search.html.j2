@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Search {{ site.name }}">
+  <title>Search — {{ site.name }}</title>
+  <link rel="stylesheet" href="{{ base }}style.css">
+</head>
+<body>
+<div class="paper">
+
+  <header class="masthead">
+    <div class="dateline"><span>{{ site.tagline }}</span></div>
+    <h1 class="nameplate"><a href="{{ base }}index.html">{{ site.name }}</a></h1>
+  </header>
+  {% include "_nav.html.j2" %}
+  <div class="rule-double"></div>
+
+  <h2 class="section-title">Search the Wire</h2>
+  <input id="q" class="search-box" type="search" placeholder="Search headlines, sources, topics…" autofocus>
+  <p id="count" class="section-sub"></p>
+  <div id="results" class="section-list"></div>
+
+  <footer class="colophon">
+    <p><a href="{{ base }}index.html">← Back to the front page</a></p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var DATA = [];
+  var box = document.getElementById('q');
+  var out = document.getElementById('results');
+  var count = document.getElementById('count');
+
+  function esc(s){ return (s||'').replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+
+  function render(list) {
+    count.textContent = box.value ? (list.length + ' result' + (list.length===1?'':'s')) : (DATA.length + ' stories indexed');
+    out.innerHTML = list.slice(0, 100).map(function (r) {
+      return '<article class="section-row"><span class="sev-dot sev-' + r.v + '"></span><div>' +
+        '<span class="kicker">' + esc(r.k || r.s) + '</span>' +
+        '<h3><a href="{{ base }}' + r.u + '">' + esc(r.t) + '</a></h3>' +
+        '<p class="byline">' + esc(r.s) + '</p></div></article>';
+    }).join('');
+  }
+
+  function search() {
+    var q = box.value.trim().toLowerCase();
+    if (!q) { render(DATA); return; }
+    var terms = q.split(/\s+/);
+    render(DATA.filter(function (r) {
+      var hay = (r.t + ' ' + r.s + ' ' + r.k).toLowerCase();
+      return terms.every(function (t) { return hay.indexOf(t) !== -1; });
+    }));
+  }
+
+  fetch('{{ base }}search-index.json').then(function (r) { return r.json(); })
+    .then(function (d) { DATA = d; render(DATA); })
+    .catch(function () { count.textContent = 'Could not load the search index.'; });
+
+  box.addEventListener('input', search);
+})();
+</script>
+</body>
+</html>
