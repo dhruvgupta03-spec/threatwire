@@ -8,11 +8,12 @@ SITE = {
     "name": "THREATWIRE",
     "tagline": "Threat Intelligence Daily",
     "motto": "The world's cyber threats, clipped and ranked — updated on the loop.",
-    "base_url": "",  # set to your custom domain later, e.g. "https://threatwire.news"
+    "base_url": "",  # set to your full site URL, e.g. "https://threatwire.news"
+    "domain": "",    # set a bare custom domain (e.g. "threatwire.news") to emit a CNAME file
 }
 
 # How many stories to render on the front page.
-MAX_ITEMS = 60
+MAX_ITEMS = 90
 # Only keep items newer than this many days (keeps the front page "latest").
 MAX_AGE_DAYS = 21
 
@@ -26,11 +27,16 @@ FEEDS = [
     {"name": "The Hacker News",     "url": "https://feeds.feedburner.com/TheHackersNews",           "category": "Breaking"},
     {"name": "Dark Reading",        "url": "https://www.darkreading.com/rss.xml",                   "category": "Analysis"},
     {"name": "SANS ISC",            "url": "https://isc.sans.edu/rssfeed_full.xml",                 "category": "Advisories"},
-    {"name": "CISA Advisories",     "url": "https://www.cisa.gov/cybersecurity-advisories/all.xml", "category": "Advisories"},
     {"name": "The Record",          "url": "https://therecord.media/feed/",                         "category": "Analysis"},
     {"name": "Schneier on Security","url": "https://www.schneier.com/feed/atom/",                   "category": "Analysis"},
     {"name": "Google Security",     "url": "https://security.googleblog.com/feeds/posts/default",   "category": "Research"},
     {"name": "Microsoft Security",  "url": "https://www.microsoft.com/en-us/security/blog/feed/",   "category": "Research"},
+    {"name": "Unit 42",             "url": "https://unit42.paloaltonetworks.com/feed/",             "category": "Research"},
+    {"name": "Cisco Talos",         "url": "https://blog.talosintelligence.com/rss/",               "category": "Research"},
+    {"name": "Securelist",          "url": "https://securelist.com/feed/",                          "category": "Research"},
+    {"name": "WeLiveSecurity",      "url": "https://www.welivesecurity.com/en/rss/feed/",           "category": "Analysis"},
+    {"name": "SecurityWeek",        "url": "https://www.securityweek.com/feed/",                    "category": "Breaking"},
+    {"name": "Graham Cluley",       "url": "https://grahamcluley.com/feed/",                        "category": "Analysis"},
 ]
 
 # --- Ranking heuristics -------------------------------------------------------
