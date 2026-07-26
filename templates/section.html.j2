@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{ heading }} — {{ site.name }}">
+  <link rel="alternate" type="application/rss+xml" title="ThreatWire RSS" href="{{ base }}feed.xml">
+  <title>{{ heading }} — {{ site.name }}</title>
+  <link rel="stylesheet" href="{{ base }}style.css">
+</head>
+<body>
+<div class="paper">
+
+  <header class="masthead">
+    <div class="dateline"><span>{{ site.tagline }}</span></div>
+    <h1 class="nameplate"><a href="{{ base }}index.html">{{ site.name }}</a></h1>
+  </header>
+  {% include "_nav.html.j2" %}
+  <div class="rule-double"></div>
+
+  <h2 class="section-title">{{ heading }}</h2>
+  <p class="section-sub">{{ subtitle }}</p>
+
+  <div class="section-list">
+    {% for it in rows %}
+    <article class="section-row">
+      <span class="sev-dot sev-{{ it.severity }}" title="{{ it.sev_label }}"></span>
+      <div>
+        <span class="kicker {{ 'sev-'~it.severity }}">{{ it.kicker }}{% if it.coverage_label %} · {{ it.coverage_label }}{% endif %}</span>
+        <h3><a href="{{ base }}{{ it.href }}">{{ it.title }}</a></h3>
+        <p class="byline">{{ it.source }}<span class="dot">•</span>{{ it.ago }}</p>
+        {% if it.summary %}<p class="story-body">{{ it.summary }}</p>{% endif %}
+      </div>
+    </article>
+    {% else %}
+    <p class="empty">No stories in this section right now.</p>
+    {% endfor %}
+  </div>
+
+  <footer class="colophon">
+    <p><a href="{{ base }}index.html">← Back to the front page</a></p>
+    <p class="built">Built {{ built_at }}</p>
+  </footer>
+
+</div>
+</body>
+</html>
