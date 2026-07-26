@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{ item.summary[:150] }}">
+  <title>{{ item.title }} — {{ site.name }}</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="paper story-page">
+
+  <header class="brief-masthead">
+    <a href="../index.html" class="brief-nameplate">{{ site.name }}</a>
+    <span class="brief-tagline">{{ site.tagline }}</span>
+  </header>
+  <div class="rule-single"></div>
+
+  <article class="brief">
+    <span class="kicker {{ 'sev-'~item.severity }}">{{ item.kicker }}{% if item.severity >= 2 %} · {{ item.sev_label }}{% endif %}</span>
+    <h1 class="brief-hl">{{ item.title }}</h1>
+    <p class="brief-byline">
+      By <strong>ThreatWire Staff</strong>
+      <span class="dot">•</span> Aggregated from {{ item.source }}
+      <span class="dot">•</span> {{ item.ago }}
+    </p>
+
+    <div class="brief-badges">
+      <span class="tag sev-{{ item.severity }}">{{ item.sev_label }}</span>
+      {% for t in item.topics %}<span class="topic-chip">{{ t }}</span>{% endfor %}
+    </div>
+
+    {% if item.summary %}
+    <p class="brief-body">{{ item.summary }}</p>
+    {% else %}
+    <p class="brief-body"><em>No summary was provided by the source for this item.</em></p>
+    {% endif %}
+
+    <a class="source-btn" href="{{ item.link }}" target="_blank" rel="noopener">
+      Read the full report at {{ item.source }} →
+    </a>
+
+    <p class="brief-note">
+      This is an aggregated brief. The summary above is syndicated from
+      {{ item.source }}; full reporting and copyright remain with the original publisher.
+    </p>
+  </article>
+
+  {% if related %}
+  <div class="rule-single"></div>
+  <section class="related">
+    <h4 class="section-head">More on the Wire</h4>
+    <ul class="rail-list">
+      {% for r in related %}
+      <li><a href="{{ r.id }}.html">{{ r.title }}</a><span class="rail-meta">{{ r.source }} · {{ r.ago }}</span></li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <footer class="colophon">
+    <p><a href="../index.html">← Back to the front page</a></p>
+    <p class="built">Brief built {{ built_at }}</p>
+  </footer>
+
+</div>
+</body>
+</html>
