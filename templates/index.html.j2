@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{ site.motto }}">
+  <!-- Loop-engineering stop/refresh: the page re-pulls the freshly built edition every 15 min. -->
+  <meta http-equiv="refresh" content="900">
+  <title>{{ site.name }} — {{ site.tagline }}</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="paper">
+
+  <!-- ── Masthead ─────────────────────────────────────────── -->
+  <header class="masthead">
+    <div class="dateline">
+      <span>{{ edition }}</span>
+      <span class="dot">•</span>
+      <span>{{ built_at }}</span>
+    </div>
+    <h1 class="nameplate">{{ site.name }}</h1>
+    <p class="tagline">{{ site.tagline }}</p>
+    <div class="posture {{ posture_class }}">
+      Global Threat Posture: <strong>{{ posture }}</strong>
+      <span class="posture-meta">{{ sev_counts[3] }} critical · {{ sev_counts[2] }} high · {{ total }} stories on the wire</span>
+    </div>
+  </header>
+
+  <div class="rule-double"></div>
+
+  {% if lead %}
+  <!-- ── Front page ───────────────────────────────────────── -->
+  <div class="frontpage">
+
+    <main class="lead-col">
+      <article class="lead">
+        <span class="kicker {{ 'sev-'~lead.severity }}">{{ lead.kicker }}{% if lead.severity >= 2 %} · {{ lead.sev_label }}{% endif %}</span>
+        <h2 class="lead-hl"><a href="{{ lead.href }}">{{ lead.title }}</a></h2>
+        <p class="byline">{{ lead.source }}<span class="dot">•</span>{{ lead.ago }}</p>
+        {% if lead.summary %}<p class="lead-body">{{ lead.summary }}</p>{% endif %}
+      </article>
+
+      <div class="secondary">
+        {% for s in secondary %}
+        <article class="story">
+          <span class="kicker {{ 'sev-'~s.severity }}">{{ s.kicker }}</span>
+          <h3><a href="{{ s.href }}">{{ s.title }}</a></h3>
+          <p class="byline">{{ s.source }}<span class="dot">•</span>{{ s.ago }}</p>
+          {% if s.summary %}<p class="story-body">{{ s.summary }}</p>{% endif %}
+        </article>
+        {% endfor %}
+      </div>
+    </main>
+
+    <!-- ── Right rail: the "markets" of cyber ──────────────── -->
+    <aside class="rail">
+      <section class="rail-box threat-level">
+        <h4 class="rail-title">Threat Level</h4>
+        <div class="level-row"><span class="tag sev-3">Critical</span><span class="bar"><i style="width:{{ (sev_counts[3]/total*100) if total else 0 }}%"></i></span><b>{{ sev_counts[3] }}</b></div>
+        <div class="level-row"><span class="tag sev-2">High</span><span class="bar"><i style="width:{{ (sev_counts[2]/total*100) if total else 0 }}%"></i></span><b>{{ sev_counts[2] }}</b></div>
+        <div class="level-row"><span class="tag sev-1">Notable</span><span class="bar"><i style="width:{{ (sev_counts[1]/total*100) if total else 0 }}%"></i></span><b>{{ sev_counts[1] }}</b></div>
+      </section>
+
+      {% if critical %}
+      <section class="rail-box">
+        <h4 class="rail-title">Critical Now</h4>
+        <ul class="rail-list">
+          {% for c in critical %}
+          <li><a href="{{ c.href }}">{{ c.title }}</a><span class="rail-meta">{{ c.source }} · {{ c.ago }}</span></li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+
+      <section class="rail-box">
+        <h4 class="rail-title">Most Active Sources</h4>
+        <ul class="rail-list compact">
+          {% for name, count in top_sources %}
+          <li><span>{{ name }}</span><b>{{ count }}</b></li>
+          {% endfor %}
+        </ul>
+      </section>
+    </aside>
+  </div>
+
+  <div class="rule-single"></div>
+
+  <!-- ── The wire: dense latest feed ──────────────────────── -->
+  <section class="wire">
+    <h4 class="section-head">The Wire — Latest</h4>
+    <div class="wire-grid">
+      {% for it in features %}
+      <article class="wire-item">
+        <span class="sev-dot sev-{{ it.severity }}" title="{{ it.sev_label }}"></span>
+        <div>
+          <h5><a href="{{ it.href }}">{{ it.title }}</a></h5>
+          <p class="wire-meta">{{ it.source }}<span class="dot">•</span>{{ it.ago }}{% if it.topics %}<span class="dot">•</span>{{ it.topics|join(', ') }}{% endif %}</p>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% else %}
+  <p class="empty">No stories on the wire yet — the fetch loop hasn't produced results.</p>
+  {% endif %}
+
+  <!-- ── Footer / colophon ────────────────────────────────── -->
+  <footer class="colophon">
+    <p class="motto">{{ site.motto }}</p>
+    <p class="sources">Sourced from {{ top_sources|length }}+ threat-intelligence wires. Headlines link to original reporting; copyright remains with each publisher.</p>
+    <p class="built">Edition built {{ built_at }} · auto-refreshes every 15 minutes on the loop.</p>
+  </footer>
+
+</div>
+</body>
+</html>
