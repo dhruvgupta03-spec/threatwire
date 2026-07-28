@@ -40,16 +40,11 @@ def enabled() -> bool:
     return has_key() and os.environ.get("ENRICH_BRIEFS") == "1"
 
 
-def _rewrite(title: str, summary: str, source: str, key: str) -> str | None:
-    prompt = (
-        "You are a cybersecurity news editor for ThreatWire. Rewrite the following "
-        "wire summary into an original, neutral 2-3 sentence brief. Do not copy phrasing; "
-        "summarize the facts. No preamble.\n\n"
-        f"Headline: {title}\nSource: {source}\nWire summary: {summary}"
-    )
+def complete(prompt: str, key: str, max_tokens: int = 320, label: str = "") -> str | None:
+    """Send a raw prompt to Claude and return the text (or None on any error)."""
     body = json.dumps({
         "model": MODEL,
-        "max_tokens": 220,
+        "max_tokens": max_tokens,
         "messages": [{"role": "user", "content": prompt}],
     }).encode()
     req = urllib.request.Request(API_URL, data=body, method="POST")
@@ -61,8 +56,19 @@ def _rewrite(title: str, summary: str, source: str, key: str) -> str | None:
             data = json.loads(resp.read().decode())
         return "".join(b.get("text", "") for b in data.get("content", [])).strip() or None
     except Exception as exc:  # noqa: BLE001 — never let enrichment break the build
-        print(f"  ! enrich failed for {title[:40]!r}: {exc}")
+        print(f"  ! LLM call failed{(' for ' + label) if label else ''}: {exc}")
         return None
+
+
+def _rewrite(title: str, summary: str, source: str, key: str) -> str | None:
+    """Rewrite one syndicated summary into an original 2-3 sentence brief."""
+    prompt = (
+        "You are a cybersecurity news editor for ThreatWire. Rewrite the following "
+        "wire summary into an original, neutral 2-3 sentence brief. Do not copy phrasing; "
+        "summarize the facts. No preamble.\n\n"
+        f"Headline: {title}\nSource: {source}\nWire summary: {summary}"
+    )
+    return complete(prompt, key, max_tokens=220, label=title[:40])
 
 
 def enrich(items: list[dict]) -> list[dict]:
